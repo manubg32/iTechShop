@@ -1,8 +1,8 @@
 # Domain Design
 
-This document defines the business domain of the e-commerce and other management platform. It describes the main business areas, theis responsibilities, core domain entities, business rules, and the events that will be used to communicate relevant changes between microservices
+This document defines the business domain of the e-commerce and order management platform. It describes the main business areas, their responsibilities, core domain entities, business rules, and the events that will be used to communicate relevant changes between microservices.
 
-The purpose of this document is to eestablish a clear understanding of the business domain before implementing the application
+The purpose of this document is to establish a clear understanding of the business domain before implementing the application.
 
 # Table of Contents
 
@@ -10,25 +10,29 @@ The purpose of this document is to eestablish a clear understanding of the busin
 2. Main Business Flow
 3. Bounded Contexts
 4. Core Domain Entities
-5. Order Lifecycle
-6. Domain Events
-7. Domain Design Principles
+5. Aggregates
+6. Value Objects
+7. Order Lifecycle
+8. Business Rules
+9. Domain Events
+10. Domain Design Principles
+11. Open Questions
 
 # 1. Business Overview
 
 The platform is an e-commerce system focused on technology products.
 
-Customers can browse the product catalog, add products to their shopping cart, place orders, andd track their orders throughout their lifecycle.
+Customers can browse the product catalog, add products to their shopping cart, place orders, and track their orders throughout their lifecycle.
 
-Administrators can manage products, categories, inventory and orders.
+Administrators can manage products, categories, inventory, and orders.
 
 The platform is designed around independent business contexts, each represented by a dedicated microservice.
 
 # 2. Main Business Flow
 
-The main customer journey is: 
+The main customer journey is:
 
-```
+```text
 Customer
    │
    ├── Register / Login
@@ -188,13 +192,15 @@ A category groups related products within the Product Context.
 - items
 
 The Cart represents the products currently selected by a customer before an order is placed.
+The Cart entity belongs to the Order Context.
 
 ## CartItem
 - productId
 - quantity
 - ...
 
-A CartItem represents a product and its selected quantity within a cart.
+A CartItem represents a product and its selected quantity within a cart..
+CartItem belongs to the Cart aggregate and cannot exist independently of its Cart.
 
 ## Order
 - id
@@ -205,6 +211,7 @@ A CartItem represents a product and its selected quantity within a cart.
 - ...
 
 The Order represents a confirmed purchase and its lifecycle
+The Order entity belongs to the Order Context.
 
 ## OrderItem
 - productId
@@ -213,8 +220,8 @@ The Order represents a confirmed purchase and its lifecycle
 - quantity
 
 An OrderItem represents a product inclded in an order.
-
 The product name and unit price will be stored as part of the order so that historical orders remain consistent even if the original product is later modified.
+OderItem belongs to the Order aggregate and cannot be modified independently of the Order.
 
 ## InventoryItem
 - productId
@@ -222,10 +229,91 @@ The product name and unit price will be stored as part of the order so that hist
 - reservedQuantity
 
 An inventoryItem represents the inventory information associated with a product.
-
 The Inventory Service is the owner of this data.
 
-# 5. Order Lifecycle
+# 5. Aggregates
+
+Aggregates will be used to define consistency boundaries within the domain.
+
+An aggregate is a group of related domain objects that must be treated as a single unit when enforcing business rules.
+
+Each aggregate has an Aggregate Root, which is the only object through which the aggregate should be modified from outside.
+
+## Order Aggregate
+Order
+└── OrderItem
+
+Order id the Aggregate Root.
+
+External components must interact with OrderItem through the Order rather than modifying an OrderItem directly
+
+This allows the Order to enforce rules such as:
+
+- An order must contain at least one item.
+- An order total must be consistent with its items.
+- Items cannot be modified once the order reaches a final state
+
+
+## Cart Aggregate
+Cart
+└── CartItem
+
+Cart is the Aggregate Root.
+
+Cart items are managed through the Cart and should not be modified independently
+
+## Inventory Aggregate
+
+InventoryItem
+
+For the initial design, InventoryItem will act as the Aggregate Root because inventory operations must be controlled through a single consistency boundary
+
+The decision may be revisited if the inventory domain becomes more complex
+
+
+# 6. Value Objects
+
+The domain will also use Value Objects where they provide maningful business semantics.
+
+Initial candidates include:
+
+## Email
+Represents a valid email address
+
+Instead of treating an email as an arbitrary String, the domain can enforce the rules associated with a valid email address
+
+## Money
+Represents a monetary amount and its currency
+
+Money
+├── amount
+└── currency
+
+Using a Money Value Object prevents monetary concepts from being represented only by primitive values
+
+## Address
+Represents a customer's shipping or billing address
+
+Address
+├── street
+├── city
+├── postalCode
+└── country
+
+The exact fields will be defined when the order domain is implemented
+
+## OrderStatus
+The order status may also be represented as a domain-specific type rather than an arbitrary string.
+
+Possible values include:
+- PENDING
+- PAID
+- SHIPPED
+- DELIVERED
+- CANCELLED
+
+
+# 7. Order Lifecycle
 
 An order will follow a defined lifecycle.
 
@@ -260,7 +348,36 @@ The exact cancellation rules will be defined before implementing the Order Servi
 
 For example, cancelling a paid order may require a simulated refund process.
 
-# 6. Domain Events
+
+# 8. Business Rules
+
+Business rules define constraints that must always be respected by the domain.
+
+## Order Rules
+- An order must contain at least one item
+- An order total must equal the sum of its order items
+- The price stored in an OrderItem represents the price at the time the order was created
+- A PENDING order can be cancelled
+- A PAID order may be cancelled according to the refund rules defined by the payment process
+- A SHIPPED order cannot be cancelled through the standard cancellation flow
+- A DELIVERED order cannot be cancelled
+
+## Inventory Rules
+- Available stock cannot be negative
+- Reserved stock cannot exceed the available inventory
+- Stock must be reserved before an order can be successfully completed
+- Reserved stock must be released when an applicable order is cancelled
+- Inventory modifications can only be performed by the Inventory Context.
+
+## Product Rules
+- A product must have a valid name
+- A product must have a non-negative price
+- A product must belong to a valid category
+- Only authorized users can create, update, or delete products
+
+The rules will later become candidates for unit and integration tests.
+
+# 9. Domain Events
 
 The domain may generate events when significant business actions occur.
 
@@ -303,7 +420,7 @@ Service           Service
 ```
 This distinction will become particularly important when implementing Kafka.
 
-# 7. Domain Design Principles
+# 10. Domain Design Principles
 
 The domain will follow the following principles:
 - Each bounded context owns its business data
@@ -312,6 +429,22 @@ The domain will follow the following principles:
 - Communication between services will use REST or asynchronous events, depending on the user case
 - Domain logic should remain independent of infrastructure technologies
 - External systems such as databases, Kafka, and HTTP clients will be accessed through ports and adapters
+- Aggregates will enforce consistency within their respective boundaries
 - Historical business information must remain consistent even when related data changes in another context
+- Domain entities should not depend directly on infrastructure frameworks whenever possible
 
 The design will provide the foundation for implementating the microservices using Domain-Driven Design and Hexagonal Architecture
+
+
+# 11. Open Questions
+
+The following decisions will be addressed during the implementation:
+- Should a paid order be cancellable
+- How long can a PENDING order remain unpaid?
+- Should inventory be reserved before or after payment?
+- What should happen if payment succeeds but inventory reservation fails?
+- What should happen if inventory is reserved but payment fails?
+- How should failed Kafka messages be handled?
+- Should the shopping cart be persisted permanently?
+- Should payments eventually be represented by a dedicated Payment Service?
+- Which order events should be exposed as Kafka integration events?
