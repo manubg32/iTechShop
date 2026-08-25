@@ -77,10 +77,17 @@ public class UsernameTest {
     }
 
     @Test
-    void shouldDifferenceUsernames() {
+    void shouldNotConsiderDifferentUsernamesAsEqual() {
         Username firstUser = new Username("User123");
         Username secondUser = new Username("other123");
         assertNotEquals(firstUser, secondUser);
+    }
+
+    @Test
+    void shouldEqualUsernamesHaveSameHashCode() {
+        Username firstUser = new Username("User123");
+        Username secondUser = new Username("user123");
+        assertEquals(firstUser.hashCode(), secondUser.hashCode());
     }
 
 }

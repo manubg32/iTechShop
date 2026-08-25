@@ -1,6 +1,6 @@
 package com.itechshop.user.domain.model;
 
-import java.util.regex.Matcher;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class Username {
@@ -13,12 +13,11 @@ public class Username {
         if (value == null) {
             throw new IllegalArgumentException("Username mustn't be empty");
         }
-        value = value.toLowerCase();
+        value = value.toLowerCase(Locale.ROOT); // Locale-independent normalization
         if (value.length() < 3 || value.length() > 20) {
             throw new IllegalArgumentException("Username must contain between 3 and 20 characters");
         }
-        Matcher matcher = PATTERN.matcher(value);
-        if (!matcher.matches()) {
+        if (PATTERN.matcher(value).matches()) {
             throw new IllegalArgumentException("Username must contain only alphanumerical characters");
         }
         this.value = value;
@@ -47,6 +46,10 @@ public class Username {
         Username other = (Username) obj;
 
         return this.value.equals(other.value);
+    }
 
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 }
