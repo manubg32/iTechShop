@@ -153,7 +153,7 @@ Notification Service
        │
        ▼
 Order confirmation
-```
+````
 
 # 4. Core Domain Entities
 
@@ -423,6 +423,7 @@ This distinction will become particularly important when implementing Kafka.
 # 10. Domain Design Principles
 
 The domain will follow the following principles:
+- For a user, the username and the email must be unique
 - Each bounded context owns its business data
 - Microservices must not access another microservice's database directly
 - Business rules should reside within the domain and application layers rather than in controllers
