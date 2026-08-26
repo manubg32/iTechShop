@@ -17,7 +17,7 @@ public class Username {
         if (value.length() < 3 || value.length() > 20) {
             throw new IllegalArgumentException("Username must contain between 3 and 20 characters");
         }
-        if (PATTERN.matcher(value).matches()) {
+        if (!PATTERN.matcher(value).matches()) {
             throw new IllegalArgumentException("Username must contain only alphanumerical characters");
         }
         this.value = value;

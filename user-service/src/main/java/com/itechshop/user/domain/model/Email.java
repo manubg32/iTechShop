@@ -28,7 +28,7 @@ public class Email {
             throw new IllegalArgumentException("Email must contain a user");
         }
 
-        if (value.indexOf('@') == value.length()-1) {
+        if (value.indexOf('@') == value.length() - 1) {
             throw new IllegalArgumentException("Email must contain a domain");
         }
 
@@ -52,7 +52,7 @@ public class Email {
             throw new IllegalArgumentException("Email must contain a user and a domain");
         }
 
-        if (value.indexOf('.') == value.length()-1) {
+        if (value.indexOf('.') == value.length() - 1) {
             throw new IllegalArgumentException("Email must contain a TLD");
         }
 
@@ -63,4 +63,26 @@ public class Email {
         return this.value;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Email)) {
+            return false;
+        }
+        Email other = (Email) obj;
+
+        return this.value.equals(other.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
 }

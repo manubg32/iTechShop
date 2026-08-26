@@ -2,8 +2,7 @@ package com.itechshop.user.domain.model;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EmailTest {
 
@@ -83,6 +82,40 @@ public class EmailTest {
                 IllegalArgumentException.class,
                 () ->  new Email ("john @doe.com")
         );
+    }
+
+    @Test
+    void shouldConsiderSameEmailValueAsEqual() {
+        Email firstEmail = new Email("john.doe@example.com");
+        Email secondEmail = new Email("John.Doe@Example.Com");
+        assertEquals(firstEmail, secondEmail);
+    }
+
+    @Test
+    void shouldNotConsiderDifferentEmailsAsEqual() {
+        Email firstEmail = new Email("John@doe.com");
+        Email secondEmail = new Email("John.doe@contoso.com");
+        assertNotEquals(firstEmail, secondEmail);
+    }
+
+    @Test
+    void shouldEqualEmailsHaveSameHashCode() {
+        Email firstEmail = new Email("john.doe@contoso.com");
+        Email secondEmail = new Email("John.doe@Contoso.com");
+        assertEquals(firstEmail.hashCode(), secondEmail.hashCode());
+    }
+
+    @Test
+    void shouldReturnNormalizedEmailAsString() {
+        Email badFormattedEmail = new Email("John.Doe@Contoso.Com");
+        assertEquals("john.doe@contoso.com", badFormattedEmail.toString());
+    }
+
+    @Test
+    void shouldNotEqualNull() {
+        Email email = new Email("john@doe.com");
+
+        assertNotEquals(null, email);
     }
 
 }
