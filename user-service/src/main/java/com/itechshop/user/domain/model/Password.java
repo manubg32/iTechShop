@@ -1,18 +1,22 @@
 package com.itechshop.user.domain.model;
 
-import java.util.regex.Pattern;
-
 public class Password {
 
     private final String value;
-
+/**
     public Password(String value) {
 
         PasswordPolicy.validate(value);
 
-        //PasswordHasher.hash(value);
-
         this.value = value;
+    }
+*/
+    private Password (String hash) {
+        this.value = hash;
+    }
+
+    public static Password fromHash(String hash) {
+        return new Password(hash);
     }
 
     public String getValue() {
