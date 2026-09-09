@@ -1,8 +1,7 @@
 package com.itechshop.user.domain.model;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class PasswordTest {
 
@@ -12,7 +11,47 @@ public class PasswordTest {
 
         Password pwd = Password.fromHash(hash);
 
-        assertEquals(hash, pwd.getValue());
+        Assertions.assertEquals(hash, pwd.getValue());
+    }
+
+    @Test
+    void shouldConsiderSameHashAsEqual() {
+        String hash = "some-hash";
+
+        Password pwd1 = Password.fromHash(hash);
+        Password pwd2 = Password.fromHash(hash);
+
+        Assertions.assertEquals(pwd1, pwd2);
+    }
+
+    @Test
+    void shouldHaveSameHashCodeForEqualPassword() {
+        String hash = "some-hash";
+
+        Password pwd1 = Password.fromHash(hash);
+        Password pwd2 = Password.fromHash(hash);
+
+        Assertions.assertEquals(pwd1.hashCode(), pwd2.hashCode());
+    }
+
+    @Test
+    void shouldRejectNullHash() {
+        String hash = null;
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> Password.fromHash(hash)
+        );
+    }
+
+    @Test
+    void shouldRejectBlankHash() {
+        String hash = "";
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> Password.fromHash(hash)
+        );
     }
 
 }
