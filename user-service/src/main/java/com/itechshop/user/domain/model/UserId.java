@@ -9,7 +9,7 @@ public class UserId {
     public UserId(UUID value) {
 
         if (value == null) {
-            throw new IllegalArgumentException("The UserId must not be null");
+            throw new IllegalArgumentException("UserId must not be null");
         }
 
         this.value = value;

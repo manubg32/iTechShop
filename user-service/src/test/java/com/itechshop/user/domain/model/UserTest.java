@@ -14,7 +14,7 @@ public class UserTest {
         Username username = new Username("exampleUser");
         Email email = new Email("Example.user@contoso.com");
         Password password =  Password.fromHash("some-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         assertDoesNotThrow(
                 () -> new User(userId, username, email, password, role)
@@ -28,7 +28,7 @@ public class UserTest {
         Username username = new Username("exampleUser");
         Email email = new Email("Example.user@contoso.com");
         Password password =  Password.fromHash("some-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         User user = new User(userId, username, email, password, role);
 
@@ -47,7 +47,7 @@ public class UserTest {
         Username newUsername = new Username("newUsername");
         Email email = new Email("Example.user@contoso.com");
         Password password = Password.fromHash("some-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         User user = new User(userId, oldUsername, email, password, role);
 
@@ -63,7 +63,7 @@ public class UserTest {
         Email oldEmail = new Email("Example.user@contoso.com");
         Email newEmail = new Email("New.user@contoso.com");
         Password password = Password.fromHash("some-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         User user = new User(userId, username, oldEmail, password, role);
 
@@ -79,7 +79,7 @@ public class UserTest {
         Email email = new Email("Example.user@contoso.com");
         Password oldPassword = Password.fromHash("some-hash");
         Password newPassword = Password.fromHash("new-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         User user = new User(userId, username, email, oldPassword, role);
 
@@ -93,7 +93,7 @@ public class UserTest {
         Username username = new Username("exampleUser");
         Email email = new Email("Example.user@contoso.com");
         Password password = Password.fromHash("some-hash");
-        Role role = Role.CLIENT;
+        Role role = Role.CUSTOMER;
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -103,7 +103,58 @@ public class UserTest {
 
    @Test
    void shouldNotCreateUserWithNullUsername() {
-        
+
+        UserId userId = new UserId(UUID.randomUUID());
+        Email email = new Email("Example.user@contoso.com");
+        Password password = Password.fromHash("some-hash");
+        Role role = Role.CUSTOMER;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new User(userId, null, email, password, role)
+        );   
+   }
+
+   @Test
+   void shouldNotCreateUserWithNullEmail() {
+
+        UserId userId = new UserId(UUID.randomUUID());
+        Username username = new Username("exampleUser");
+        Password password = Password.fromHash("some-hash");
+        Role role = Role.CUSTOMER;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new User(userId, username, null, password, role)
+        );   
+   }
+
+   @Test
+   void shouldNotCreateUserWithNullPassword() {
+
+        UserId userId = new UserId(UUID.randomUUID());
+        Username username = new Username("exampleUser");
+        Email email = new Email("Example.user@contoso.com");
+        Role role = Role.CUSTOMER;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new User(userId, username, email, null, role)
+        );   
+   }
+
+   @Test 
+   void shouldNotCreateUserWithNullRole() {
+        UserId userId = new UserId(UUID.randomUUID());
+        Username username = new Username("exampleUser");
+        Email email = new Email("Example.user@contoso.com");
+        Password password = Password.fromHash("some-hash");
+        Role role = null;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new User(userId, username, email, password, role)
+        );
    }
 
 }
