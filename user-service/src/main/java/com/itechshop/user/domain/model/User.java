@@ -9,28 +9,11 @@ public class User {
     private final Role role;
 
     public User(UserId userId, Username username, Email email, Password password, Role role) {
-
-        if (userId == null) {
-            throw new IllegalArgumentException("userId cannot be null");
-        }
-        if (username == null) {
-            throw new IllegalArgumentException("username cannot be null");
-        }
-        if (email == null) {
-            throw new IllegalArgumentException("email cannot be null");
-        }
-        if (password == null) {
-            throw new IllegalArgumentException("password cannot be null");
-        }
-        if (role == null) {
-            throw new IllegalArgumentException("role cannot be null");
-        }
-
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
+        this.userId = requireNotNull(userId, "UserId");
+        this.username = requireNotNull(username, "Username");
+        this.email = requireNotNull(email, "Email");
+        this.password = requireNotNull(password, "Password");
+        this.role = requireNotNull(role, "Role");
     }
 
     public UserId getUserId() {
@@ -54,16 +37,36 @@ public class User {
     }
 
     public void changeUsername(Username newUsername) {
-        this.username = newUsername;
+        this.username = requireNotNull(newUsername, "Username");
     }
 
     public void changeEmail(Email newEmail) {
-        this.email = newEmail;
+        this.email = requireNotNull(newEmail, "Email");
     }
 
     public void changePassword(Password newPassword) {
-        this.password = newPassword;
+        this.password = requireNotNull(newPassword, "Password");
     }
 
-    
+    private static <T> T requireNotNull(T value, String fieldName) {
+        if (value == null) {
+            throw new IllegalArgumentException(fieldName + " must not be null");
+        }
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+
+        if (this == otherObject) return true;
+
+        if (otherObject == null || getClass() != otherObject.getClass()) return false;
+        User user = (User) otherObject;
+        return userId.equals(user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return userId.hashCode();
+    }
 }

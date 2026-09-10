@@ -1,6 +1,7 @@
 package com.itechshop.user.domain.model;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.util.UUID;
 
@@ -56,6 +57,22 @@ public class UserTest {
         assertEquals(newUsername, user.getUsername());
     }
 
+    @Test 
+   void shouldNotChangeUsernameToNull() {
+        UserId userId = new UserId(UUID.randomUUID());
+        Username oldUsername = new Username("exampleUser");
+        Email email = new Email("Example.user@contoso.com");
+        Password password = Password.fromHash("some-hash");
+        Role role = Role.CUSTOMER;
+
+        User user = new User(userId, oldUsername, email, password, role);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> user.changeUsername(null)
+        );
+   }
+
     @Test
     void shouldChangeEmail () {
         UserId userId = new UserId(UUID.randomUUID());
@@ -73,6 +90,22 @@ public class UserTest {
     }
 
     @Test
+    void shouldNotChangeEmailToNull() {
+        UserId userId = new UserId(UUID.randomUUID());
+        Username username = new Username("exampleUser");
+        Email oldEmail = new Email("Example.user@contoso.com");
+        Password password = Password.fromHash("some-hash");
+        Role role = Role.CUSTOMER;
+
+        User user = new User(userId, username, oldEmail, password, role);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> user.changeEmail(null)
+        );
+    }
+
+    @Test
     void shouldChangePassword () {
         UserId userId = new UserId(UUID.randomUUID());
         Username username = new Username("exampleUser");
@@ -86,6 +119,22 @@ public class UserTest {
         user.changePassword(newPassword);
 
         assertEquals(newPassword, user.getPassword());
+    }
+
+    @Test 
+    void shouldNotChangePasswordToNull() {
+        UserId userId = new UserId(UUID.randomUUID());
+        Username username = new Username("exampleUser");
+        Email email = new Email("Example.user@contoso.com");
+        Password oldPassword = Password.fromHash("some-hash");
+        Role role = Role.CUSTOMER;
+
+        User user = new User(userId, username, email, oldPassword, role);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> user.changePassword(null)
+        );
     }
 
     @Test
@@ -156,5 +205,72 @@ public class UserTest {
                 () -> new User(userId, username, email, password, role)
         );
    }
+
+   @Test
+    void shouldConsiderSameUsersAsEqual() {
+
+        UserId userId = new UserId(UUID.randomUUID());
+        
+        User firstUser = new User(
+                userId,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+        User secondUser = new User(
+                userId,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+
+        assertEquals(firstUser, secondUser);
+    }
+
+    @Test
+    void shouldNotConsiderDifferentUsersAsEqual() {
+
+        User firstUser = new User(
+                new UserId(UUID.randomUUID()),
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+        User secondUser = new User(
+                new UserId(UUID.randomUUID()),
+                new Username("other123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+
+        assertNotEquals(firstUser, secondUser);
+    }
+
+    @Test
+    void shouldEqualUsersHaveSameHashCode() {
+
+        UserId userId = new UserId(UUID.randomUUID());
+
+        User firstUser = new User(
+                userId,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+        User secondUser = new User(
+                userId,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+
+        assertEquals(firstUser.hashCode(), secondUser.hashCode());
+    }
 
 }
