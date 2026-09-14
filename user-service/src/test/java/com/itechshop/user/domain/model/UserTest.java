@@ -1,11 +1,13 @@
 package com.itechshop.user.domain.model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class UserTest {
 
@@ -206,50 +208,6 @@ public class UserTest {
         );
    }
 
-   @Test
-    void shouldConsiderSameUsersAsEqual() {
-
-        UserId userId = new UserId(UUID.randomUUID());
-        
-        User firstUser = new User(
-                userId,
-                new Username("User123"),
-                new Email("Example.user@contoso.com"),
-                Password.fromHash("some-hash"),
-                Role.CUSTOMER
-        );
-        User secondUser = new User(
-                userId,
-                new Username("User123"),
-                new Email("Example.user@contoso.com"),
-                Password.fromHash("some-hash"),
-                Role.CUSTOMER
-        );
-
-        assertEquals(firstUser, secondUser);
-    }
-
-    @Test
-    void shouldNotConsiderDifferentUsersAsEqual() {
-
-        User firstUser = new User(
-                new UserId(UUID.randomUUID()),
-                new Username("User123"),
-                new Email("Example.user@contoso.com"),
-                Password.fromHash("some-hash"),
-                Role.CUSTOMER
-        );
-        User secondUser = new User(
-                new UserId(UUID.randomUUID()),
-                new Username("other123"),
-                new Email("Example.user@contoso.com"),
-                Password.fromHash("some-hash"),
-                Role.CUSTOMER
-        );
-
-        assertNotEquals(firstUser, secondUser);
-    }
-
     @Test
     void shouldEqualUsersHaveSameHashCode() {
 
@@ -264,13 +222,58 @@ public class UserTest {
         );
         User secondUser = new User(
                 userId,
+                new Username("Other123"),
+                new Email("Other.user@contoso.com"),
+                Password.fromHash("other-hash"),
+                Role.ADMIN
+        );
+
+        assertEquals(firstUser.hashCode(), secondUser.hashCode());
+    }
+
+    @Test 
+    void shouldEqualUsersHaveSameUserId() {
+        UserId userId = new UserId(UUID.randomUUID());
+
+        User firstUser = new User(
+                userId,
+                new Username("User321"),
+                new Email("Other.user@contoso.com"),
+                Password.fromHash("other-hash"),
+                Role.ADMIN
+        );
+        User secondUser = new User(
+                userId,
                 new Username("User123"),
                 new Email("Example.user@contoso.com"),
                 Password.fromHash("some-hash"),
                 Role.CUSTOMER
         );
 
-        assertEquals(firstUser.hashCode(), secondUser.hashCode());
+        assertEquals(firstUser, secondUser);
+    }
+
+    @Test 
+    void shouldNotBeEqualWhenUserIdDiffers() {
+        UserId userId1 = new UserId(UUID.randomUUID());
+        UserId userId2 = new UserId(UUID.randomUUID());
+
+        User firstUser = new User(
+                userId1,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+        User secondUser = new User(
+                userId2,
+                new Username("User123"),
+                new Email("Example.user@contoso.com"),
+                Password.fromHash("some-hash"),
+                Role.CUSTOMER
+        );
+
+        assertNotEquals(firstUser, secondUser);
     }
 
 }
