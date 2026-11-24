@@ -1,0 +1,19 @@
+{
+  "java.jdt.ls.java.home": "C:\\Program Files\\Microsoft\\jdk-21.0.12.101-hotspot",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\Program Files\\Microsoft\\jdk-21.0.12.101-hotspot",
+      "default": true
+    }
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "maven.executable.preferMavenWrapper": true,
+  "search.exclude": {
+    "**/target": true
+  },
+  "files.watcherExclude": {
+    "**/target/**": true
+  },
+  "java.compile.nullAnalysis.mode": "disabled"
+}
